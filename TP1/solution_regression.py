@@ -23,8 +23,11 @@ class Regression:
 
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
-        # AJOUTER CODE ICI
-        phi_x = x
+        exp = [i+1 for i in range(self.M)]
+        if isinstance(x, int):
+            phi_x = np.power(x,exp)
+        else:
+            phi_x = np.array([np.power(element,exp) for element in x])
         return phi_x
 
     def recherche_hyperparametre(self, X, t):
@@ -51,10 +54,10 @@ class Regression:
         Cette methode doit assigner le champs ``self.w`` au vecteur
         (tableau Numpy 1D) de taille D+1, tel que specifie à la section 3.1.4
         du livre de Bishop.
-        
-        Lorsque using_sklearn=True, vous devez utiliser la classe "Ridge" de 
+
+        Lorsque using_sklearn=True, vous devez utiliser la classe "Ridge" de
         la librairie sklearn (voir http://scikit-learn.org/stable/modules/linear_model.html)
-        
+
         Lorsque using_sklearn=Fasle, vous devez implementer l'equation 3.28 du
         livre de Bishop. Il est suggere que le calcul de ``self.w`` n'utilise
         pas d'inversion de matrice, mais utilise plutôt une procedure
@@ -82,8 +85,8 @@ class Regression:
         a prealablement ete appelee. Elle doit utiliser le champs ``self.w``
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
-        # AJOUTER CODE ICI
-        return 0.5
+        self.w = [0,2,3,5,6,8,4,6,1,5]
+        return np.dot(self.fonction_base_polynomiale(x),self.w)
 
     @staticmethod
     def erreur(t, prediction):
@@ -91,5 +94,10 @@ class Regression:
         Retourne l'erreur de la difference au carre entre
         la cible ``t`` et la prediction ``prediction``.
         """
-        # AJOUTER CODE ICI
-        return 0.0
+        if isinstance(t, int):
+            return (t-prediction)**2
+        else:
+            return sum(np.square(t-prediction))
+
+r = Regression(0.001, 10)
+print(r.prediction([0,2]))
