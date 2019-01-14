@@ -98,6 +98,3 @@ class Regression:
             return (t-prediction)**2
         else:
             return sum(np.square(t-prediction))
-
-r = Regression(0.001, 10)
-print(r.prediction([0,2]))
