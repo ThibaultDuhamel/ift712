@@ -1,0 +1,102 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{TP1}
+\author{Thibault Duhamel et Sharon Shi }
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\begin{document}
+
+\maketitle
+
+\section*{Question 1}
+
+On se place dans le cas de variables discrètes.
+
+Partons de l'expression la plus compliquée de l'égalité pour arriver à la plus simple :
+
+$$H(y|x) - H(x) = - \sum_{x}{\sum_{y}{p(x,y)log(p(y|x))}} + \sum_{x}{p(x)log(p(x))}$$
+
+La somme est une opération linéaire, ce qui nous amène à fusionner les deux parties :
+
+$$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(y|x))} + p(x)log(p(x))\Big]}$$
+
+Utilisons à présent l'égalité mettant en relation la probabilité conditionnelle et la probabilité jointe :
+
+$$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(\frac{p(x,y)}{p(x)})} + p(x)log(p(x))\Big]}$$
+
+Cela nous permet de décomposer le logarithme grâce à ses propriétés :
+
+$$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)[log(p(x,y))-log(p(x))]} + p(x)log(p(x))\Big]}$$
+
+Puis, en séparant la somme d'indice \textit{y} :
+
+$$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(x,y))}-\sum_{y}{p(x,y)log(p(x))} + p(x)log(p(x))\Big]}$$
+
+On remarque que la deuxième somme d'indice \textit{y} est en fait la somme des probabilités jointes sur la variable \textit{y} :
+
+$$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(x,y))}-p(x)log(p(x)) + p(x)log(p(x))\Big]}$$
+
+$$ = - \sum_{x}{\sum_{y}{p(x,y)log(p(x,y))}}$$
+
+Ce qui se trouve être la définition de l'entropie jointe :
+
+$$\boxed{H(y|x) - H(x) = H(x,y)}$$
+
+
+
+\section*{Question 2}
+
+Partons encore une fois de l'expression la plus complexe, dans le cas de variables discrètes :
+
+$$H(x) - H(x|y) = \sum_{x}{-p(x)log(p(x))} + \sum_{x}{\sum_{y}{p(x,y)log(p(x|y))}}$$
+
+Utilisons la linéarité de la somme :
+
+$$= \sum_{x}{\Big[-p(x)log(p(x)) + \sum_{y}{p(x,y)log(p(x|y))}\Big]}$$
+
+Remplaçons la probabilité conditionnelle par sa relation avec la probabilité jointe :
+
+$$= \sum_{x}{\Big[-p(x)log(p(x)) + \sum_{y}{p(x,y)log(\frac{p(x,y)}{p(y)})}\Big]}$$
+
+Faisons apparaître, dans le premier terme de la somme, la marginalisation des probabilités jointes sur l'indice \textit{y}:
+
+$$= \sum_{x}{\Big[-\sum_{y}{p(x,y)log(p(x))} + \sum_{y}{p(x,y)log(\frac{p(x,y)}{p(y)})}\Big]}$$
+
+À présent, les deux somme d'indice \textit{y} peuvent être fusionnées :
+
+$$= \sum_{x}{\sum_{y}{\Big[-p(x,y)log(p(x))+p(x,y)log(\frac{p(x,y)}{p(y)})\Big]}}$$
+
+Finalement, la propriété du logarithme nous permet d'écrire :
+
+$$= \sum_{x}{\sum_{y}{\Big[p(x,y)log(\frac{p(x,y)}{p(x)p(y)})\Big]}}$$
+
+Ce qui n'est autre que la définition de l'information jointe :
+
+$$\boxed{= I(x,y)}$$
+
+\section*{Question 3}
+
+Partons de la définition de la covariance, dans le cas de variables discrètes :
+
+$$cov(x,y) = E[(x-E(x))(y-E(y)]$$
+
+Développons le produit :
+
+$$= E[(xy - xE(y) - yE(x) + E(x)E(y)]$$
+
+L'espérance est une application linéaire, ce qui nous permet de la séparer en 4 parties :
+
+$$= E(xy) - E[xE(y)] - E[yE(x)] + E[E(x)E(y)]$$
+
+Étant donné que E(x) et E(y) sont des constantes, il est possible d'utiliser encore une fois la linéarité de l'espérance :
+
+$$= E(xy) - E(y)E[x] - E(x)E[y] + E(x)E(y)$$
+
+$$\boxed{= E(xy) - E(y)E[x]}$$
+
+\end{document}
+
