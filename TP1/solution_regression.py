@@ -23,11 +23,10 @@ class Regression:
 
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
-        exp = [i+1 for i in range(self.M)]
-        if isinstance(x, int):
-            phi_x = np.power(x,exp)
+        if isinstance(x, float):
+            phi_x = np.vander([x], self.M, increasing=True)
         else:
-            phi_x = np.array([np.power(element,exp) for element in x])
+            phi_x = np.vander(x, self.M, increasing=True)
         return phi_x
 
     def recherche_hyperparametre(self, X, t):
@@ -41,7 +40,26 @@ class Regression:
         t: vecteur de cibles
         """
         # AJOUTER CODE ICI
-        self.M = 1
+        print("Recherche de M...")
+        splits_len = X.shape[0]/10
+
+        best_error = float("inf")
+        best_M = 1
+        for k in range(10):
+            X_validation = X[int(k*splits_len) : int((k+1)*splits_len)]
+            X_train = np.concatenate((X[:int(k*splits_len)],X[int((k+1)*splits_len):]), axis=0)
+            t_validation = t[int(k*splits_len) : int((k+1)*splits_len)]
+            t_train = np.concatenate((t[:int(k*splits_len)],t[int((k+1)*splits_len):]), axis=0)
+            self.M = k+1
+            self.entrainement(X_train, t_train, False)
+            error_validation = Regression.erreur(self.prediction(X_validation), t_validation)
+            print("M = " + str(k+1) + ", Validation Loss = " + str(error_validation))
+            if (error_validation < best_error):
+                best_error = error_validation
+                best_M = k+1
+        print("Best M : " + str(best_M))
+        self.M = best_M
+
 
     def entrainement(self, X, t, using_sklearn=False):
         """
@@ -74,7 +92,13 @@ class Regression:
             self.recherche_hyperparametre(X, t)
 
         phi_x = self.fonction_base_polynomiale(X)
-        self.w = [0, 1]
+        if (using_sklearn):
+            ridge = linear_model.Ridge(alpha=self.lamb, fit_intercept=False).fit(phi_x,t)
+            weights = ridge.coef_
+        else:
+            weights = np.linalg.solve(np.dot(np.transpose(phi_x),phi_x)+self.lamb*np.identity(self.M), np.dot(np.transpose(phi_x),t))
+
+        self.w = weights
 
     def prediction(self, x):
         """
@@ -85,8 +109,11 @@ class Regression:
         a prealablement ete appelee. Elle doit utiliser le champs ``self.w``
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
-        self.w = [0,2,3,5,6,8,4,6,1,5]
-        return np.dot(self.fonction_base_polynomiale(x),self.w)
+        pred = np.dot(self.fonction_base_polynomiale(x),self.w)
+        if pred.shape == (1,):
+            return pred[0]
+        else:
+            return pred
 
     @staticmethod
     def erreur(t, prediction):
@@ -94,7 +121,7 @@ class Regression:
         Retourne l'erreur de la difference au carre entre
         la cible ``t`` et la prediction ``prediction``.
         """
-        if isinstance(t, int):
+        if isinstance(t, float):
             return (t-prediction)**2
         else:
-            return sum(np.square(t-prediction))
+            return np.mean((t-prediction)**2)
