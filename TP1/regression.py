@@ -16,7 +16,12 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     erreur_apprentissage: erreur obtenue sur l'ensemble d'apprentissage
     bruit: magnitude du bruit
     """
-    # AJOUTER CODE ICI
+    ratio = (erreur_test - erreur_apprentissage)/(erreur_apprentissage+erreur_test)
+    if ratio > 1-bruit:
+        print("WARNING : Possible overfitting")
+		
+    if erreur_test > 0.3+bruit and erreur_apprentissage > 0.2+bruit:
+        print("WARNING : Possible underfitting")
 
 ################################
 # Execution en tant que script 

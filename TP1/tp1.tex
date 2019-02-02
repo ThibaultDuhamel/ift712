@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 
 \title{TP1}
-\author{Thibault Duhamel et Sharon Shi }
+\author{Thibault Duhamel 18026048 et Heng Shi 18171434 }
 
 \usepackage{natbib}
 \usepackage{graphicx}
@@ -14,89 +14,103 @@
 
 \section*{Question 1}
 
-On se place dans le cas de variables discrètes.
+We here chose to introduce discrete variables to demonstrate the following property of the entropy:
 
-Partons de l'expression la plus compliquée de l'égalité pour arriver à la plus simple :
+$$H[x,y] = H[y|x] + H[x]$$
 
-$$H(y|x) - H(x) = - \sum_{x}{\sum_{y}{p(x,y)log(p(y|x))}} + \sum_{x}{p(x)log(p(x))}$$
+Let us start from the right side of the equation, which is the most complex, to arrive to the left side:
 
-La somme est une opération linéaire, ce qui nous amène à fusionner les deux parties :
+$$H(y|x) + H(x) = - \sum_{x}{\sum_{y}{p(x,y)log(p(y|x))}} - \sum_{x}{p(x)log(p(x))}$$
+
+The sum is a linear operation, which leads us to merge the two parts:
 
 $$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(y|x))} + p(x)log(p(x))\Big]}$$
 
-Utilisons à présent l'égalité mettant en relation la probabilité conditionnelle et la probabilité jointe :
+It is useful to introduce the equality of conditional probability:
 
 $$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(\frac{p(x,y)}{p(x)})} + p(x)log(p(x))\Big]}$$
 
-Cela nous permet de décomposer le logarithme grâce à ses propriétés :
+We are now able to break down the logarithm term as follows, by the use of its properties:
 
 $$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)[log(p(x,y))-log(p(x))]} + p(x)log(p(x))\Big]}$$
 
-Puis, en séparant la somme d'indice \textit{y} :
+Then, we do expand the items according to distributive property:
 
 $$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(x,y))}-\sum_{y}{p(x,y)log(p(x))} + p(x)log(p(x))\Big]}$$
 
-On remarque que la deuxième somme d'indice \textit{y} est en fait la somme des probabilités jointes sur la variable \textit{y} :
+Moreover, the second factor can be added based on the variable \textit {y}, which is the property of joint probabilities:
 
 $$ = - \sum_{x}{\Big[\sum_{y}{p(x,y)log(p(x,y))}-p(x)log(p(x)) + p(x)log(p(x))\Big]}$$
 
 $$ = - \sum_{x}{\sum_{y}{p(x,y)log(p(x,y))}}$$
 
-Ce qui se trouve être la définition de l'entropie jointe :
+What happens to be exactly the definition of the joined entropy:
 
-$$\boxed{H(y|x) - H(x) = H(x,y)}$$
+$$\boxed{H(y|x) + H(x) = H(x,y)}$$
 
 
 
 \section*{Question 2}
 
-Partons encore une fois de l'expression la plus complexe, dans le cas de variables discrètes :
+We here also decided to introduce discrete variables to demonstrate the following property of mutual information:
 
-$$H(x) - H(x|y) = \sum_{x}{-p(x)log(p(x))} + \sum_{x}{\sum_{y}{p(x,y)log(p(x|y))}}$$
+$$I(x,y) = H(x) - H(x|y)$$
 
-Utilisons la linéarité de la somme :
+Let us start from the right side of the equation to get to the left side:
+
+$$H(x) - H(x|y) = -\sum_{x}{p(x)log(p(x))} + \sum_{x}{\sum_{y}{p(x,y)log(p(x|y))}}$$
+
+Using the linearity of the sum, we will transform it into the following equation:
 
 $$= \sum_{x}{\Big[-p(x)log(p(x)) + \sum_{y}{p(x,y)log(p(x|y))}\Big]}$$
 
-Remplaçons la probabilité conditionnelle par sa relation avec la probabilité jointe :
+We can now replace the conditional probability by its relation to the joint probability:
 
 $$= \sum_{x}{\Big[-p(x)log(p(x)) + \sum_{y}{p(x,y)log(\frac{p(x,y)}{p(y)})}\Big]}$$
 
-Faisons apparaître, dans le premier terme de la somme, la marginalisation des probabilités jointes sur l'indice \textit{y}:
+The first term of the sum can be marginalized over the variable \textit {y}:
 
 $$= \sum_{x}{\Big[-\sum_{y}{p(x,y)log(p(x))} + \sum_{y}{p(x,y)log(\frac{p(x,y)}{p(y)})}\Big]}$$
 
-À présent, les deux somme d'indice \textit{y} peuvent être fusionnées :
+Now, the two sums of variable \textit {y} can be merged:
 
 $$= \sum_{x}{\sum_{y}{\Big[-p(x,y)log(p(x))+p(x,y)log(\frac{p(x,y)}{p(y)})\Big]}}$$
 
-Finalement, la propriété du logarithme nous permet d'écrire :
+Finally, the property of logarithms allows us to write it as follows:
 
 $$= \sum_{x}{\sum_{y}{\Big[p(x,y)log(\frac{p(x,y)}{p(x)p(y)})\Big]}}$$
 
-Ce qui n'est autre que la définition de l'information jointe :
+Which is exactly the definition of the mutual information and therefore proves the property:
 
-$$\boxed{= I(x,y)}$$
+$$\boxed{H(x) - H(x|y) = I(x,y)}$$
 
 \section*{Question 3}
 
-Partons de la définition de la covariance, dans le cas de variables discrètes :
+In the question, we also demonstrate the following property in the context of discrete variables:
 
-$$cov(x,y) = E[(x-E(x))(y-E(y)]$$
+$$Cov[x,y] = E_{xy}[xy] - E[x]E[y]$$
 
-Développons le produit :
+The covariance is defined by the following equation:
+$$Cov[x,y] = E[(x-E[x])(y-E[y])]$$
 
-$$= E[(xy - xE(y) - yE(x) + E(x)E(y)]$$
+Let us distribute each item of the product:
 
-L'espérance est une application linéaire, ce qui nous permet de la séparer en 4 parties :
+$$= E[xy - xE[y] - yE[x] + E[x]E[y]]$$
 
-$$= E(xy) - E[xE(y)] - E[yE(x)] + E[E(x)E(y)]$$
+The linearity of the expectation allows us to split it into four parts:
 
-Étant donné que E(x) et E(y) sont des constantes, il est possible d'utiliser encore une fois la linéarité de l'espérance :
+$$= E[xy] - E[xE[y]] - E[yE[x]] + E[E[x]E[y]]$$
 
-$$= E(xy) - E(y)E[x] - E(x)E[y] + E(x)E(y)$$
+Since E[x] and E[y] are constants, the linearity can herein be used again:
 
-$$\boxed{= E(xy) - E(y)E[x]}$$
+$$= E[xy] - E[y]E[x] - E[x]E[y] + E[x]E[y]$$
+
+$$= E[xy] - E[y]E[x]$$
+
+As a conclusion, the covariance definition is linked by the following equalities:
+
+$$\boxed{Cov[x,y] = E[xy] - E[y]E[x]
+                             = E_{xy}[x,y] - E[x]E[y]}$$
 
 \end{document}
 

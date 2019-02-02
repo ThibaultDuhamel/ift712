@@ -23,7 +23,7 @@ class Regression:
 
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
-        if isinstance(x, float):
+        if np.isscalar(x):
             phi_x = np.vander([x], self.M, increasing=True)
         else:
             phi_x = np.vander(x, self.M, increasing=True)
@@ -121,7 +121,7 @@ class Regression:
         Retourne l'erreur de la difference au carre entre
         la cible ``t`` et la prediction ``prediction``.
         """
-        if isinstance(t, float):
+        if np.isscalar(t):
             return (t-prediction)**2
         else:
             return np.mean((t-prediction)**2)
