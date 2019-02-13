@@ -79,8 +79,7 @@ class ClassifieurLineaire:
             print('Perceptron')
             for k in range(1000):
                 for i in range(len(x_train)):
-                    #Convert [0 or 1] to [-1 or 1]
-                    if (2*self.prediction(x_train[i])-1)*(2*t_train[i]-1) < 0:
+                    if ClassifieurLineaire.erreur(t_train[i], self.prediction(x_train[i])) == 1:
                         self.w += self.lamb * (2*t_train[i]-1) * x_train[i]
                         self.w_0 += self.lamb * (2*t_train[i]-1)
 
