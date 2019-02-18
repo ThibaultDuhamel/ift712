@@ -50,10 +50,3 @@ class kNN(Classifier):
 		
 		print("Done")
 		return np.array(result_labels)
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
-
-knn = kNN(5)
-knn.train(dm.x_train,dm.y_train)
-labels = knn.test(dm.x_train)
