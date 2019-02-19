@@ -21,7 +21,7 @@ class DataManager():
 			csv_file_train_reader = csv.reader(csv_file_train)
 			#Skip header
 			next(csv_file_train_reader)
-			
+
 			#list of the 192 features
 			features = []
 			#list of the leaf labels (string labels) corresponding to the features
@@ -30,7 +30,7 @@ class DataManager():
 				labels_string.append(row[1])
 				features.append([float(feature) for feature in row[2:]])
 			self.x_train = np.array(features)
-			
+
 			#Establish a link between leaf names and unique assigned ids
 			unique_labels = np.unique(labels_string)
 			#Leaf labels (but this time converted to one-hot vectors) corresponding to the features
@@ -39,7 +39,7 @@ class DataManager():
 			for l in range(len(labels_string)):
 				self.y_train[l][np.where(unique_labels==labels_string[l])[0]] = 1
 		print("-> " + str(self.x_train.shape[0]) + " training examples loaded")
-	
+
 		print("Loading testing data...")
 		#Second part : testing data
 		with open(path_test) as csv_file_test:
