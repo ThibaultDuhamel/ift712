@@ -100,22 +100,22 @@ $$H(X) = - p_1log_2(p_1) - p_2log_2(p_2) - p_3log_2(p_3)$$
 
 As we want to maximize this function (with $p_1+p_2+p_3 = 1$) we can express the problem with a Lagrange multiplier:
 
-$$L = - p_1log_2(p_1) - p_2log_2(p_2) - p_3log_2(p_3) + \lambda(p_1+p_2+p_3-1)$$
+$$L = p_1log_2(p_1) + p_2log_2(p_2) + p_3log_2(p_3) + \lambda(p_1+p_2+p_3-1)$$
 
 However, we do have another condition on those probabilities (that is $p_1 = 2p_2$), so we can modify the expression consequently:
 
-$$L = - 2p_2log_2(2p_2) - p_2log_2(p_2) - p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
+$$L = 2p_2log_2(2p_2) + p_2log_2(p_2) + p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
 
-$$L = - 2p_2 - 2p_2log_2(p_2) - p_2log_2(p_2) - p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
+$$L = 2p_2 + 2p_2log_2(p_2) + p_2log_2(p_2) + p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
 
-$$L = - 2p_2 - 3p_2log_2(p_2) - p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
+$$L = 2p_2 + 3p_2log_2(p_2) + p_3log_2(p_3) + \lambda(3p_2+p_3-1)$$
 
 Let us now compute the gradients of such a function:
 
 $$
 \begin{cases}
-\frac{dL}{dp_2} = - 2 - 3log_2(p_2) - \frac{3}{ln(2)} + 3\lambda$$\\
-\frac{dL}{dp_3} = -log_2(p_3) - \frac{1}{ln(2)} + \lambda$$
+\frac{dL}{dp_2} = 2 + 3log_2(p_2) + \frac{3}{ln(2)} + 3\lambda$$\\
+\frac{dL}{dp_3} = log_2(p_3) + \frac{1}{ln(2)} + \lambda$$
 \end{cases}
 $$
 
@@ -125,8 +125,8 @@ We can then set those gradients to zero:
 
 $$ 
 \begin{cases}
-- 2 - 3log_2(p_2) - \frac{3}{ln(2)} + 3\lambda = 0\\
--log_2(p_3) - \frac{1}{ln(2)} + \lambda = 0
+2 + 3log_2(p_2) + \frac{3}{ln(2)} + 3\lambda = 0\\
+log_2(p_3) + \frac{1}{ln(2)} + \lambda = 0
 \end{cases}
 $$
 
@@ -134,8 +134,8 @@ Let us first divide the first equation by 3:
 
 $$ 
 \begin{cases}
-- \frac{2}{3} - log_2(p_2) - \frac{1}{ln(2)} + \lambda = 0\\
--log_2(p_3) - \frac{1}{ln(2)} + \lambda = 0
+\frac{2}{3} + log_2(p_2) + \frac{1}{ln(2)} + \lambda = 0\\
+log_2(p_3) + \frac{1}{ln(2)} + \lambda = 0
 \end{cases}
 $$
 
