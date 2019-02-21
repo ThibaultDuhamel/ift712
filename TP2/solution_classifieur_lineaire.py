@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 #####
-# Vos Noms (VosMatricules) .~= À MODIFIER =~.
+# DUHAMEL Thibault (18026048)
+# SHI Heng (18171434)
 ####
 
 import numpy as np
