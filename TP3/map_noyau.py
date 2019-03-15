@@ -62,7 +62,7 @@ class MAPnoyau:
 				if self.noyau == "rbf":
 					k_xi_xj = np.exp(-np.linalg.norm(x_train[i]-x_train[j])**2/2/self.sigma_square)
 				elif self.noyau == "polynomial":
-					k_xi_xj = (np.dot(x_train[i],x_train[j])+self.c)**self.M
+					k_xi_xj = (np.dot(x_train[i],x_train[j])-self.c)**self.M
 				elif self.noyau == "sigmoidal":
 					k_xi_xj = np.tanh(self.b*np.dot(x_train[i],x_train[j]) + self.d)
 				else:
@@ -112,7 +112,30 @@ class MAPnoyau:
 		de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
 		de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
 		"""
-		for sigma_square in [0.000000001, 0.000000005, 0.00000001, 0.00000005]
+		if self.noyau == "polynomial":
+			min_err = float("inf")
+			best_M = 2
+			best_c = 0
+			best_lamb = 0.000000001
+			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
+				for M in [0,1,2,3,4,5]:
+					for c in [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]:
+						self.M = M
+						self.c = c
+						self.lamb = lamb
+						self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
+						errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
+						err = 100*np.sum(errors)/(0.2*len(x_tab))
+						if err < min_err:
+							min_err = err
+							best_M = M
+							best_c = c
+							best_lamb = lamb
+			self.M = best_M
+			self.c = best_c
+			self.lamb = best_lamb
+			print(best_M,best_c,best_lamb,min_err)
+			self.entrainement(x_tab,t_tab)
 
 	def affichage(self, x_tab, t_tab):
 
