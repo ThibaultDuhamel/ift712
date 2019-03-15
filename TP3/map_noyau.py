@@ -112,7 +112,7 @@ class MAPnoyau:
 		de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
 		de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
 		"""
-		# AJOUTER CODE ICI
+		for sigma_square in [0.000000001, 0.000000005, 0.00000001, 0.00000005]
 
 	def affichage(self, x_tab, t_tab):
 
