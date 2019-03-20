@@ -34,7 +34,7 @@ class SVM(Classifier):
 
 	"""
 	Test the model with the x_test features array
-	Return : an array of predicted labels, as probabilities for each class
+	Return : an array of predicted labels, as label for each class
 	"""
 	def test(self, x_test):
 		return self.model.predict(x_test)
@@ -50,5 +50,5 @@ dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
 s = SVM()
 s.train(dm.x_train, dm.y_train_strings)
-print("")
+print("Accuracy training :", s.accuracy(s.test(dm.x_train), dm.y_train_strings))
 print("Best C =",s.C)
