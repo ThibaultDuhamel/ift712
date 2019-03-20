@@ -44,11 +44,65 @@ class SVM(Classifier):
 	Return : nothing
 	"""
 	def cross_validation(self, x_train, y_train):
-		pass
+		best_accuracy = 0.0
+		best_C = 0.00001
+		best_kernel = "linear"
+		#In the case of poly, rbf, sigmoid
+		best_gamma = 0.5
+		#In the case of poly
+		best_degree = 1
+
+		#Testing combinations of hyperparameters
+		for kernel in ["linear", "rbf", "poly", "sigmoid"]:
+			#We only want to search gamma and degree for specific kernels
+			gamma_range = [0.1] #Default value, not used
+			degree_range = [1] #Default value, not used
+			if kernel == "rbf" or kernel=="sigmoid":
+				gamma_range = [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10]
+				degree_range = [1] #Default value, not used
+			elif kernel=="poly":
+				gamma_range = [0.0001, 0.001, 0.01, 0.1, 1, 10]
+				degree_range = [1,2,4,6,7,8,9,10]
+			#Find hyperparameters only if necessary
+			for gamma in gamma_range:
+				for degree in degree_range:
+					for C in [0.01, 0.1, 1, 10, 100, 1000, 10000]:
+						#Random permutation
+						perm = np.random.permutation(x_train.shape[0])
+						x = x_train[perm]
+						y = y_train[perm]
+						#80% for training and 20% for validation
+						x_train_split = x[:int(0.8*x.shape[0])]
+						y_train_split = y[:int(0.8*x.shape[0])]
+						x_val_split = x[int(0.8*x.shape[0]):]
+						y_val_split = y[int(0.8*y.shape[0]):]
+
+						#Test the model with hyperparameters values
+						self.C = C
+						self.kernel = kernel
+						self.gamma = gamma
+						self.degree = degree
+						self.train(x_train_split,y_train_split)
+						results = self.test(x_val_split)
+						#Compute accuracy and compare with the best value found
+						accuracy = self.accuracy(results, y_val_split)
+						print("Kernel =",kernel,", gamma =",gamma,", degree",degree,", C =",C,", Accuracy = ",str(accuracy))
+						if accuracy > best_accuracy:
+							best_accuracy = accuracy
+							best_C = C
+							best_kernel = kernel
+							best_gamma = gamma
+							best_degree = degree
+		#Select the best value found
+		self.C = best_C
+		self.kernel = best_kernel
+		self.gamma = best_gamma
+		self.degree = best_degree
+		self.train(x_train,y_train)
 
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
 s = SVM()
-s.train(dm.x_train, dm.y_train_strings)
+s.cross_validation(dm.x_train, dm.y_train_strings)
 print("Accuracy training :", s.accuracy(s.test(dm.x_train), dm.y_train_strings))
-print("Best C =",s.C)
+print("Best kernel =",s.kernel,", Best C =",s.C)
