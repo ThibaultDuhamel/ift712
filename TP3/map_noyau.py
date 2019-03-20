@@ -88,7 +88,18 @@ class MAPnoyau:
 		sinon
 		"""
 		#Equation 6.9
-		y = np.dot(self.a,np.dot(self.x_train,x))
+		N = self.x_train.shape[0]
+		k = np.zeros(N)
+		for i in range(N):
+			if self.noyau == "rbf":
+				k[i] = np.exp(-np.linalg.norm(self.x_train[i]-x)**2/2/self.sigma_square)
+			elif self.noyau == "polynomial":
+				k[i] = (np.dot(self.x_train[i],x)-self.c)**self.M
+			elif self.noyau == "sigmoidal":
+				k[i] = np.tanh(self.b*np.dot(self.x_train[i],x) + self.d)
+			else:
+				k[i] = np.dot(self.x_train[i],x)
+		y = np.dot(k,self.a)
 		if y>0.5:
 			return 1
 		return 0

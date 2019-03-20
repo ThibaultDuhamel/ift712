@@ -23,7 +23,7 @@ def analyse_erreur(err_train, err_test):
 	#10% safe margin
 	if err_test>err_train+10:
 		print("WARNING : Possible overfitting")
-	if err_test>40 and err_train>40:
+	if err_test>25 and err_train>25:
 		print("WARNING : Possible underfitting")
 
 def main():
