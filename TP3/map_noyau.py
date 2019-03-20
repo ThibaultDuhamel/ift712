@@ -112,7 +112,29 @@ class MAPnoyau:
 		de 0.000000001 à 2, les valeurs de ``self.c`` de 0 à 5, les valeurs
 		de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
 		"""
-		if self.noyau == "polynomial":
+		if self.noyau == "rbf":
+			print("Finding best hyperparameters for rbf kernel...")
+			min_err = float("inf")
+			best_sigma_square = 0.000000001
+			best_lamb = 0.000000001
+			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1]:
+				for sigma_square in [0.000000001, 0.0000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2, 4, 8, 12, 16, 20, 24, 30,50,100,200,400,800,1600]:
+					self.sigma_square = sigma_square
+					self.lamb = lamb
+					#Training on 80% of the set, validating on 20%
+					self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
+					errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
+					err = 100*np.sum(errors)/(0.2*len(x_tab))
+					if err < min_err:
+						min_err = err
+						best_sigma_square = sigma_square
+						best_lamb = lamb
+			self.sigma_square = best_sigma_square
+			self.lamb = best_lamb
+			print("sigma_square =",best_sigma_square,", lamb =",best_lamb,", val_error =",min_err)
+			self.entrainement(x_tab,t_tab)
+		elif self.noyau == "polynomial":
+			print("Finding best hyperparameters for polynomial kernel...")
 			min_err = float("inf")
 			best_M = 2
 			best_c = 0
@@ -123,6 +145,7 @@ class MAPnoyau:
 						self.M = M
 						self.c = c
 						self.lamb = lamb
+						#Training on 80% of the set, validating on 20%
 						self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
 						errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
 						err = 100*np.sum(errors)/(0.2*len(x_tab))
@@ -134,7 +157,49 @@ class MAPnoyau:
 			self.M = best_M
 			self.c = best_c
 			self.lamb = best_lamb
-			print(best_M,best_c,best_lamb,min_err)
+			print("M =",best_M,", c =",best_c,", lamb =",best_lamb,", val_error =",min_err)
+			self.entrainement(x_tab,t_tab)
+		elif self.noyau == "sigmoidal":
+			print("Finding best hyperparameters for sigmoidal kernel...")
+			min_err = float("inf")
+			best_b = 0.00001
+			best_d = 0.00001
+			best_lamb = 0.000000001
+			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
+				for b in [0.00001, 0.0001, 0.001, 0.01, 0.1]:
+					for d in [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]:
+						self.b = b
+						self.d = d
+						self.lamb = lamb
+						#Training on 80% of the set, validating on 20%
+						self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
+						errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
+						err = 100*np.sum(errors)/(0.2*len(x_tab))
+						if err < min_err:
+							min_err = err
+							best_b = b
+							best_d = d
+							best_lamb = lamb
+			self.b = best_b
+			self.d = best_d
+			self.lamb = best_lamb
+			print("b =",best_b,", d =",best_d,", lamb =",best_lamb,", val_error =",min_err)
+			self.entrainement(x_tab,t_tab)
+		else:
+			print("Finding best hyperparameters for linear kernel...")
+			min_err = float("inf")
+			best_lamb = 0.000000001
+			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
+				self.lamb = lamb
+				#Training on 80% of the set, validating on 20%
+				self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
+				errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
+				err = 100*np.sum(errors)/(0.2*len(x_tab))
+				if err < min_err:
+					min_err = err
+					best_lamb = lamb
+			self.lamb = best_lamb
+			print("lamb =",best_lamb,", val_error =",min_err)
 			self.entrainement(x_tab,t_tab)
 
 	def affichage(self, x_tab, t_tab):
