@@ -35,7 +35,17 @@ class Classifier:
 	"""
 	def accuracy(self, predicted_labels, true_labels):
 		accuracy = 0.0
-		for predicted,true in zip(predicted_labels,true_labels):
-			if np.argmax(predicted) == np.argmax(true):
-				accuracy+=1
+
+		#First version is for string labels
+		if isinstance(predicted_labels[0], str):
+			for predicted,true in zip(predicted_labels,true_labels):
+				if predicted==true:
+					accuracy+=1
+
+		#Second version if for one-hot labels
+		else:
+			for predicted,true in zip(predicted_labels,true_labels):
+				if np.argmax(predicted) == np.argmax(true):
+					accuracy+=1
+
 		return 100*accuracy/predicted_labels.shape[0]
