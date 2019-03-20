@@ -5,7 +5,8 @@ Execution dans un terminal
 Exemple:
    python non_lineaire_classification.py rbf 100 200 0 0
 
-Vos Noms (Vos Matricules) .~= À MODIFIER =~.
+# DUHAMEL Thibault 18026048
+# SHI Heng 18171434
 """
 
 import numpy as np
@@ -19,7 +20,11 @@ def analyse_erreur(err_train, err_test):
 	Fonction qui affiche un WARNING lorsqu'il y a apparence de sur ou de sous
 	apprentissage
 	"""
-	#AJOUTER CODE ICI
+	#10% safe margin
+	if err_test>err_train+10:
+		print("WARNING : Possible overfitting")
+	if err_test>40 and err_train>40:
+		print("WARNING : Possible underfitting")
 
 def main():
 
