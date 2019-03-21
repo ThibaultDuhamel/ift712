@@ -95,7 +95,7 @@ class SVM(Classifier):
 							results = self.test(x_val_split)
 							#Compute accuracy and compare with the best value found
 							accuracy = self.accuracy(results, y_val_split)
-							print("kernel =",kernel,", gamma =",gamma,", degree",degree,", coef0 =",coef0,", C =",C,", Accuracy = ",str(accuracy))
+							print("kernel =",kernel,", gamma =",gamma,", degree =",degree,", coef0 =",coef0,", C =",C,", Accuracy = ",str(accuracy))
 							if accuracy > best_accuracy:
 								best_accuracy = accuracy
 								best_C = C
@@ -109,7 +109,7 @@ class SVM(Classifier):
 		self.gamma = best_gamma
 		self.degree = best_degree
 		self.coef0 = best_coef0
-		print("Best values : kernel =",kernel,", gamma =",gamma,", degree",degree,", coef0 =",coef0,", C =",C)
+		print("Best values : kernel =",self.kernel,", gamma =",self.gamma,", degree =",self.degree,", coef0 =",self.coef0,", C =",self.C)
 		self.train(x_train,y_train)
 
 dm = DataManager()
