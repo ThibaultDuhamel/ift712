@@ -111,11 +111,25 @@ class MAPnoyau:
 		"""
 		return (t-prediction)**2
 
+	def error_k_folds(self,x_tab,t_tab,nb_folds):
+		splits_len = int(len(x_tab)/nb_folds)
+		mean_Error = 0.0
+		for k in range(nb_folds):
+			#90% is for training, 10% is for validation
+			X_validation = x_tab[int(k*splits_len) : int((k+1)*splits_len)]
+			X_train = np.concatenate((x_tab[:int(k*splits_len)],x_tab[int((k+1)*splits_len):]), axis=0)
+			t_validation = t_tab[int(k*splits_len) : int((k+1)*splits_len)]
+			t_train = np.concatenate((t_tab[:int(k*splits_len)],t_tab[int((k+1)*splits_len):]), axis=0)
+			self.entrainement(X_train, t_train)
+			errors = [self.erreur(t_validation[i],self.prediction(X_validation[i])) for i in range(len(t_validation))]
+			mean_Error += 100*np.sum(errors)/(len(X_train))
+		return mean_Error/nb_folds
+
 	def validation_croisee(self, x_tab, t_tab):
 		"""
 		Cette fonction trouve les meilleurs hyperparametres ``self.sigma_square``,
 		``self.c`` et ``self.M`` (tout dépendant du noyau selectionné) et
-		``self.lamb`` avec une validation croisée de type "k-fold" où k=1 avec les
+		``self.lamb`` avec une validation croisée de type "k-fold" où k=10 avec les
 		données contenues dans x_tab et t_tab.  Une fois les meilleurs hyperparamètres
 		trouvés, le modèle est entraîné une dernière fois.
 
@@ -128,21 +142,20 @@ class MAPnoyau:
 			min_err = float("inf")
 			best_sigma_square = 0.000000001
 			best_lamb = 0.000000001
-			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1]:
-				for sigma_square in [0.000000001, 0.0000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2, 4, 8, 12, 16, 20, 24, 30,50,100,200,400,800,1600]:
+			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
+				for sigma_square in [0.000000001, 0.0000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
 					self.sigma_square = sigma_square
 					self.lamb = lamb
-					#Training on 80% of the set, validating on 20%
-					self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
-					errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
-					err = 100*np.sum(errors)/(0.2*len(x_tab))
-					if err < min_err:
-						min_err = err
+				
+					mean_Error_k_Folds = self.error_k_folds(x_tab,t_tab,10)
+					print("lamb =",lamb,"sigma_square =",sigma_square,"loss =",mean_Error_k_Folds,"%")
+					if mean_Error_k_Folds < min_err:
+						min_err = mean_Error_k_Folds
 						best_sigma_square = sigma_square
 						best_lamb = lamb
 			self.sigma_square = best_sigma_square
 			self.lamb = best_lamb
-			print("sigma_square =",best_sigma_square,", lamb =",best_lamb,", val_error =",min_err)
+			print("Best values : lamb =",best_lamb,", sigma_square =",best_sigma_square,", val_error =",min_err,"%")
 			self.entrainement(x_tab,t_tab)
 		elif self.noyau == "polynomial":
 			print("Finding best hyperparameters for polynomial kernel...")
@@ -151,24 +164,23 @@ class MAPnoyau:
 			best_c = 0
 			best_lamb = 0.000000001
 			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
-				for M in [0,1,2,3,4,5]:
-					for c in [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]:
+				for M in [2,3,4,5,6]:
+					for c in [0,1,2,3,4,5]:
 						self.M = M
 						self.c = c
 						self.lamb = lamb
-						#Training on 80% of the set, validating on 20%
-						self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
-						errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
-						err = 100*np.sum(errors)/(0.2*len(x_tab))
-						if err < min_err:
-							min_err = err
+						
+						mean_Error_k_Folds = self.error_k_folds(x_tab,t_tab,10)
+						print("lamb =",lamb,"M =",M,"c =",c,"loss =",mean_Error_k_Folds,"%")
+						if mean_Error_k_Folds < min_err:
+							min_err = mean_Error_k_Folds
 							best_M = M
 							best_c = c
 							best_lamb = lamb
 			self.M = best_M
 			self.c = best_c
 			self.lamb = best_lamb
-			print("M =",best_M,", c =",best_c,", lamb =",best_lamb,", val_error =",min_err)
+			print("M =",best_M,", c =",best_c,", lamb =",best_lamb,", val_error =",min_err,"%")
 			self.entrainement(x_tab,t_tab)
 		elif self.noyau == "sigmoidal":
 			print("Finding best hyperparameters for sigmoidal kernel...")
@@ -177,24 +189,23 @@ class MAPnoyau:
 			best_d = 0.00001
 			best_lamb = 0.000000001
 			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
-				for b in [0.00001, 0.0001, 0.001, 0.01, 0.1]:
-					for d in [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5]:
+				for b in [0.00001, 0.0001, 0.001, 0.01]:
+					for d in [0.00001, 0.0001, 0.001, 0.01]:
 						self.b = b
 						self.d = d
 						self.lamb = lamb
-						#Training on 80% of the set, validating on 20%
-						self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
-						errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
-						err = 100*np.sum(errors)/(0.2*len(x_tab))
-						if err < min_err:
-							min_err = err
+						
+						mean_Error_k_Folds = self.error_k_folds(x_tab,t_tab,10)
+						print("lamb =",lamb,"b =",b,"d =",d,"loss =",mean_Error_k_Folds,"%")
+						if mean_Error_k_Folds < min_err:
+							min_err = mean_Error_k_Folds
 							best_b = b
 							best_d = d
 							best_lamb = lamb
 			self.b = best_b
 			self.d = best_d
 			self.lamb = best_lamb
-			print("b =",best_b,", d =",best_d,", lamb =",best_lamb,", val_error =",min_err)
+			print("b =",best_b,", d =",best_d,", lamb =",best_lamb,", val_error =",min_err,"%")
 			self.entrainement(x_tab,t_tab)
 		else:
 			print("Finding best hyperparameters for linear kernel...")
@@ -202,15 +213,14 @@ class MAPnoyau:
 			best_lamb = 0.000000001
 			for lamb in [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 2]:
 				self.lamb = lamb
-				#Training on 80% of the set, validating on 20%
-				self.entrainement(x_tab[0:int(0.8*len(x_tab))], t_tab[0:int(0.8*len(t_tab))])
-				errors = [self.erreur(t_tab[i],self.prediction(x_tab[i])) for i in range(int(0.8*len(t_tab)),int(len(t_tab)))]
-				err = 100*np.sum(errors)/(0.2*len(x_tab))
-				if err < min_err:
-					min_err = err
+				
+				mean_Error_k_Folds = self.error_k_folds(x_tab,t_tab,10)
+				print("lamb =",lamb,"loss =",mean_Error_k_Folds,"%")
+				if mean_Error_k_Folds < min_err:
+					min_err = mean_Error_k_Folds
 					best_lamb = lamb
 			self.lamb = best_lamb
-			print("lamb =",best_lamb,", val_error =",min_err)
+			print("lamb =",best_lamb,", val_error =",min_err,"%")
 			self.entrainement(x_tab,t_tab)
 
 	def affichage(self, x_tab, t_tab):
