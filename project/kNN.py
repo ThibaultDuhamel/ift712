@@ -80,6 +80,7 @@ class kNN(Classifier):
 				best_k = k+1
 		#Select the best value found
 		self.k = best_k
+		self.train(x_train,y_train)
 
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
