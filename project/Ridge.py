@@ -37,27 +37,30 @@ class Ridge(Classifier):
 		best_accuracy = 0.0
 		best_alpha = 0.01
 
+		splits_length = int(x_train.shape[0]/10)
+
 		#Testing combinations of hyperparameters
 		for alpha in [0.000000001, 0.00000001, 0.0000001, 0.000001,0.000005,0.00001,0.00005,0.0001,0.0005,0.001,0.01,0.1,1]:
-			#Random permutation
-			perm = np.random.permutation(x_train.shape[0])
-			x = x_train[perm]
-			y = y_train[perm]
-			#80% for training and 20% for validation
-			x_train_split = x[:int(0.8*x.shape[0])]
-			y_train_split = y[:int(0.8*x.shape[0])]
-			x_val_split = x[int(0.8*x.shape[0]):]
-			y_val_split = y[int(0.8*y.shape[0]):]
-
 			#Test the model with hyperparameters values
 			self.alpha = alpha
-			self.train(x_train_split,y_train_split)
-			results = self.test(x_val_split)
-			#Compute accuracy and compare with the best value found
-			accuracy = self.accuracy(results, y_val_split)
-			print("alpha =",alpha,", Accuracy = ",accuracy)
-			if accuracy > best_accuracy:
-				best_accuracy = accuracy
+
+			accuracy_mean = 0.0
+			for K in range(10):
+				#Split the data into 10 folds and use the #K for validation
+				x_validation_fold = x_train[int(K*splits_length) : int((K+1)*splits_length)]
+				x_train_fold = np.concatenate((x_train[:int(K*splits_length)],x_train[int((K+1)*splits_length):]), axis=0)
+				y_validation_fold = y_train[int(K*splits_length) : int((K+1)*splits_length)]
+				y_train_fold = np.concatenate((y_train[:int(K*splits_length)],y_train[int((K+1)*splits_length):]), axis=0)
+				#Test the model with the value of k and output a distribution
+				self.train(x_train_fold,y_train_fold)
+				results = self.test(x_validation_fold)
+				#Compute accuracy and compare with the best value found
+				accuracy_mean += self.accuracy(results, y_validation_fold)
+			accuracy_mean /= 10
+
+			print("alpha =",alpha,", Accuracy = ",accuracy_mean)
+			if accuracy_mean > best_accuracy:
+				best_accuracy = accuracy_mean
 				best_alpha = alpha
 		#Select the best value found
 		self.alpha = best_alpha
@@ -68,12 +71,7 @@ class Ridge(Classifier):
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
 r = Ridge()
-perm = np.random.permutation(dm.x_train.shape[0])
-x = dm.x_train[perm]
-y = dm.y_train[perm]
-x_train_split = x[:int(0.8*x.shape[0])]
-y_train_split = y[:int(0.8*x.shape[0])]
-x_val_split = x[int(0.8*x.shape[0]):]
-y_val_split = y[int(0.8*y.shape[0]):]
-r.cross_validation(x_train_split, y_train_split)
-print("Accuracy training :", r.accuracy(r.test(x_val_split), y_val_split))
+x = dm.x_train
+y = dm.y_train
+r.cross_validation(x, y)
+print("Accuracy training :", r.accuracy(r.test(x), y))
