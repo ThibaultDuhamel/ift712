@@ -4,9 +4,12 @@ import numpy as np
 class DataManager():
 
 	def __init__(self):
-		#Lists of leaf features examples and labels for training
+		#List of leaf features examples
 		self.x_train = np.array([])
+		#List of one-hot labels
 		self.y_train = np.array([])
+		#List of string labels, for every examples, in the same order as y_train
+		self.y_train_strings = np.array([])
 		#Lists of leaf features examples without labels for testing
 		self.x_test = np.array([])
 
@@ -30,12 +33,11 @@ class DataManager():
 				labels_string.append(row[1])
 				features.append([float(feature) for feature in row[2:]])
 			self.x_train = np.array(features)
-
+			self.y_train_strings = np.array(labels_string)
 			#Establish a link between leaf names and unique assigned ids
 			unique_labels = np.unique(labels_string)
 			#Leaf labels (but this time converted to one-hot vectors) corresponding to the features
-			self.y_train = np.zeros((len(features),
-			unique_labels.shape[0]))
+			self.y_train = np.zeros((len(features), unique_labels.shape[0]))
 			for l in range(len(labels_string)):
 				self.y_train[l][np.where(unique_labels==labels_string[l])[0]] = 1
 		print("-> " + str(self.x_train.shape[0]) + " training examples loaded")
