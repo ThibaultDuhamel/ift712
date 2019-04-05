@@ -55,6 +55,7 @@ class SVM(Classifier):
 		best_coef0 = 0
 		#In the case of poly
 		best_degree = 1
+		splits_length = int(x_train.shape[0]/10)
 
 		#Testing combinations of hyperparameters
 		for kernel in ["linear", "rbf", "poly", "sigmoid"]:
@@ -63,41 +64,41 @@ class SVM(Classifier):
 			degree_range = [1] #Default value, not used
 			coef0_range = [0] #Default value, not used
 			if kernel == "rbf" or kernel=="sigmoid":
-				gamma_range = [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10]
+				gamma_range = [0.0001, 0.001, 0.01, 0.1, 1]
 				degree_range = [1] #Default value, not used
 				coef0_range = [-4,-2,0,2,4]
 			elif kernel=="poly":
-				gamma_range = [0.0001, 0.001, 0.01, 0.1, 1, 10]
-				degree_range = [1,2,4,6,7,8,9,10]
+				gamma_range = [0.0001, 0.001, 0.01, 0.1, 1]
+				degree_range = [1,2,4,8]
 				coef0_range = [-4,-2,0,2,4]
 			#Find hyperparameters only if necessary
 			for gamma in gamma_range:
 				for degree in degree_range:
 					for coef0 in coef0_range:
-						for C in [0.01, 0.1, 1, 10, 100, 1000, 10000]:
-							#Random permutation
-							perm = np.random.permutation(x_train.shape[0])
-							x = x_train[perm]
-							y = y_train[perm]
-							#80% for training and 20% for validation
-							x_train_split = x[:int(0.8*x.shape[0])]
-							y_train_split = y[:int(0.8*x.shape[0])]
-							x_val_split = x[int(0.8*x.shape[0]):]
-							y_val_split = y[int(0.8*y.shape[0]):]
-
+						for C in [0.1, 1, 10, 100, 1000, 10000]:
 							#Test the model with hyperparameters values
 							self.C = C
 							self.kernel = kernel
 							self.gamma = gamma
 							self.degree = degree
 							self.coef0 = coef0
-							self.train(x_train_split,y_train_split)
-							results = self.test(x_val_split)
-							#Compute accuracy and compare with the best value found
-							accuracy = self.accuracy(results, y_val_split)
-							print("kernel =",kernel,", gamma =",gamma,", degree =",degree,", coef0 =",coef0,", C =",C,", Accuracy = ",str(accuracy))
-							if accuracy > best_accuracy:
-								best_accuracy = accuracy
+
+							accuracy_mean = 0.0
+							for K in range(10):
+								#Split the data into 10 folds and use the #K for validation
+								x_validation_fold = x_train[int(K*splits_length) : int((K+1)*splits_length)]
+								x_train_fold = np.concatenate((x_train[:int(K*splits_length)],x_train[int((K+1)*splits_length):]), axis=0)
+								y_validation_fold = y_train[int(K*splits_length) : int((K+1)*splits_length)]
+								y_train_fold = np.concatenate((y_train[:int(K*splits_length)],y_train[int((K+1)*splits_length):]), axis=0)
+								#Test the model with the value of k and output a distribution
+								self.train(x_train_fold,y_train_fold)
+								results = self.test(x_validation_fold)
+								#Compute accuracy and compare with the best value found
+								accuracy_mean += self.accuracy(results, y_validation_fold)
+							accuracy_mean /= 10
+							print("kernel =",kernel,", gamma =",gamma,", degree =",degree,", coef0 =",coef0,", C =",C,", Validation Accuracy = ",str(accuracy_mean))
+							if accuracy_mean > best_accuracy:
+								best_accuracy = accuracy_mean
 								best_C = C
 								best_kernel = kernel
 								best_gamma = gamma
