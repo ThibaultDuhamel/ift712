@@ -17,21 +17,15 @@ class kNN(Classifier):
 	Return : nothing
 	"""
 	def train(self, x_train, y_train):
-		print("")
-		print("Training kNN method...")
 		#There is no training part for this method, except saving a set of examples that will vote during testing
 		self.x_train = x_train
 		self.y_train = y_train
-		print("Done")
 
 	"""
 	Test the model with the x_test features array
 	Return : an array of predicted labels
 	"""
 	def test(self, x_test):
-		print("")
-		print("Testing kNN method with k=" + str(self.k) + "...")
-
 		nb_train_examples = self.x_train.shape[0]
 		result_labels = []
 
@@ -48,37 +42,41 @@ class kNN(Classifier):
 			#If there is a tie, select a random label amongst the ones with min distance
 			indices_of_max_votes = np.argwhere(counts==np.max(counts))
 			vote = unique_labels[indices_of_max_votes[np.random.randint(indices_of_max_votes.shape[0])]]
-			result_labels.append(vote)
+			result_labels.append(vote[0])
 
-		print("Done")
 		return np.array(result_labels)
 
 	"""
-	Find the best k by cross validating on different train/validation folds
+	Find the best k by cross validating on 10-folds
 	Return : nothing
 	"""
 	def cross_validation(self, x_train, y_train):
 		max_k = 10
+		#Size of a fold.
+		splits_length = int(x_train.shape[0]/10)
 
-		splits_length = x_train.shape[0]/max_k
 		best_accuracy = 0.0
 		best_k = 1
 
+		#k is the hyperparameters, K is the number of folds
 		for k in range(max_k):
-			#Split the data into k_max folds and use the #k for validation
-			x_validation_fold = x_train[int(k*splits_length) : int((k+1)*splits_length)]
-			X_train_fold = np.concatenate((x_train[:int(k*splits_length)],x_train[int((k+1)*splits_length):]), axis=0)
-			y_validation_fold = y_train[int(k*splits_length) : int((k+1)*splits_length)]
-			y_train_fold = np.concatenate((y_train[:int(k*splits_length)],y_train[int((k+1)*splits_length):]), axis=0)
-			#Test the model with the value of k and output a distribution
 			self.k = k+1
-			self.train(X_train_fold,y_train_fold)
-			results = self.test(x_validation_fold)
-			#Compute accuracy and compare with the best value found
-			accuracy = self.accuracy(results, y_validation_fold)
-			print("Accuracy : " + str(accuracy))
-			if accuracy > best_accuracy:
-				best_accuracy = accuracy
+			accuracy_mean = 0.0
+			for K in range(10):
+				#Split the data into 10 folds and use the #K for validation
+				x_validation_fold = x_train[int(K*splits_length) : int((K+1)*splits_length)]
+				x_train_fold = np.concatenate((x_train[:int(K*splits_length)],x_train[int((K+1)*splits_length):]), axis=0)
+				y_validation_fold = y_train[int(K*splits_length) : int((K+1)*splits_length)]
+				y_train_fold = np.concatenate((y_train[:int(K*splits_length)],y_train[int((K+1)*splits_length):]), axis=0)
+				#Test the model with the value of k and output a distribution
+				self.train(x_train_fold,y_train_fold)
+				results = self.test(x_validation_fold)
+				#Compute accuracy and compare with the best value found
+				accuracy_mean += self.accuracy(results, y_validation_fold)
+			accuracy_mean /= 10
+			print("k =",k+1,", Validation Accuracy =", accuracy_mean)
+			if accuracy_mean > best_accuracy:
+				best_accuracy = accuracy_mean
 				best_k = k+1
 		#Select the best value found
 		self.k = best_k
@@ -86,6 +84,7 @@ class kNN(Classifier):
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
 knn = kNN()
-knn.cross_validation(dm.x_train, dm.y_train)
+perm = np.random.permutation(dm.x_train.shape[0])
+knn.cross_validation(dm.x_train[perm], dm.y_train_strings[perm])
 print("")
 print("Best k =",knn.k)
