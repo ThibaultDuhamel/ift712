@@ -44,31 +44,33 @@ class Perceptron(Classifier):
 		best_learning_rate = 0.01
 		best_layer_factor = 1
 
+		splits_length = int(x_train.shape[0]/10)
+
 		#Testing combinations of hyperparameters
 		for layer_factor in [2,4,8,16,32]:
 			for alpha in [0.00001,0.0001,0.001,0.01,0.1,1]:
 				for learning_rate in [0.0001,0.001,0.01,0.1,1]:
-					#Random permutation
-					perm = np.random.permutation(x_train.shape[0])
-					x = x_train[perm]
-					y = y_train[perm]
-					#80% for training and 20% for validation
-					x_train_split = x[:int(0.8*x.shape[0])]
-					y_train_split = y[:int(0.8*x.shape[0])]
-					x_val_split = x[int(0.8*x.shape[0]):]
-					y_val_split = y[int(0.8*y.shape[0]):]
-
 					#Test the model with hyperparameters values
 					self.layer_factor = layer_factor
 					self.alpha = alpha
 					self.learning_rate = learning_rate
-					self.train(x_train_split,y_train_split)
-					results = self.test(x_val_split)
-					#Compute accuracy and compare with the best value found
-					accuracy = self.accuracy(results, y_val_split)
-					print("layer_factor =",layer_factor,", alpha =",alpha,", learning_rate =",learning_rate,", Accuracy = ",accuracy)
-					if accuracy > best_accuracy:
-						best_accuracy = accuracy
+
+					accuracy_mean = 0.0
+					for K in range(10):
+						#Split the data into 10 folds and use the #K for validation
+						x_validation_fold = x_train[int(K*splits_length) : int((K+1)*splits_length)]
+						x_train_fold = np.concatenate((x_train[:int(K*splits_length)],x_train[int((K+1)*splits_length):]), axis=0)
+						y_validation_fold = y_train[int(K*splits_length) : int((K+1)*splits_length)]
+						y_train_fold = np.concatenate((y_train[:int(K*splits_length)],y_train[int((K+1)*splits_length):]), axis=0)
+						#Test the model with the value of k and output a distribution
+						self.train(x_train_fold,y_train_fold)
+						results = self.test(x_validation_fold)
+						#Compute accuracy and compare with the best value found
+						accuracy_mean += self.accuracy(results, y_validation_fold)
+					accuracy_mean /= 10
+					print("layer_factor =",layer_factor,", alpha =",alpha,", learning_rate =",learning_rate,", Accuracy = ",accuracy_mean)
+					if accuracy_mean > best_accuracy:
+						best_accuracy = accuracy_mean
 						best_layer_factor = layer_factor
 						best_alpha = alpha
 						best_learning_rate = learning_rate
