@@ -115,8 +115,14 @@ class LinearClassifier(object):
 
 		for n in range(N):
 			output = outputs[n]
-			softmax = np.exp(output)
+			#To avoid overflow
+			threshold = np.vectorize(lambda t : max(-1000, min(t,1000)))
+			output = threshold(output)
+			#To avoid exponential overflow
+			softmax = np.exp(output - np.max(output))
 			softmax = softmax/np.sum(softmax)
+			threshold = np.vectorize(lambda t : max(t,0.001))
+			softmax = threshold(softmax)
 			loss -= np.log(softmax[y[n]])
 			loss += reg*np.linalg.norm(self.W)
 			#Accuracy
@@ -146,9 +152,14 @@ class LinearClassifier(object):
 
 		#1
 		output = np.dot(self.W.T,x)
-		softmax = np.exp(output)
+		#To avoid overflow
+		threshold = np.vectorize(lambda t : max(-1000, min(t,1000)))
+		output = threshold(output)
+		#To avoid exponential overflow
+		softmax = np.exp(output - np.max(output))
 		softmax = softmax/np.sum(softmax)
-
+		threshold = np.vectorize(lambda t : max(t,0.001))
+		softmax = threshold(softmax)
 		#2 / 3
 		#As the target is a one-hot vector, only the score of the true class matters
 		loss = -np.log(softmax[y])
