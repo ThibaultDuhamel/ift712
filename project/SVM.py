@@ -9,7 +9,7 @@ class SVM(Classifier):
 	#Initialisation of the required parameters
 	def __init__(self):
 		#SVM penalty parameter, to control the softness of the separation
-		self.C = 1.0
+		self.C = 1
 		#SVM kernel, which can be linear, rbf, sigmoidal, poly
 		self.kernel = "linear"
 
@@ -47,15 +47,15 @@ class SVM(Classifier):
 	Return : nothing
 	"""
 	def cross_validation(self, x_train, y_train):
-		best_accuracy = 0.0
+		best_accuracy = 10.0
 		best_C = 0.00001
-		best_kernel = "linear"
+		best_kernel = "rbf"
 		#In the case of poly, rbf, sigmoid
-		best_gamma = 0.5
+		best_gamma = 0.001
 		best_coef0 = 0
 		#In the case of poly
 		best_degree = 1
-		splits_length = int(x_train.shape[0]/10)
+		splits_length = int(x_train.shape[0]/5)
 
 		#Testing combinations of hyperparameters
 		for kernel in ["linear", "rbf", "poly", "sigmoid"]:
@@ -84,7 +84,8 @@ class SVM(Classifier):
 							self.coef0 = coef0
 
 							accuracy_mean = 0.0
-							for K in range(10):
+							log_loss_mean = 0.0
+							for K in range(5):
 								#Split the data into 10 folds and use the #K for validation
 								x_validation_fold = x_train[int(K*splits_length) : int((K+1)*splits_length)]
 								x_train_fold = np.concatenate((x_train[:int(K*splits_length)],x_train[int((K+1)*splits_length):]), axis=0)
@@ -95,8 +96,10 @@ class SVM(Classifier):
 								results = self.test(x_validation_fold)
 								#Compute accuracy and compare with the best value found
 								accuracy_mean += self.accuracy(results, y_validation_fold)
-							accuracy_mean /= 10
-							print("kernel =",kernel,", gamma =",gamma,", degree =",degree,", coef0 =",coef0,", C =",C,", Validation Accuracy = ",str(accuracy_mean))
+								log_loss_mean += self.log_loss(results, y_validation_fold)
+							accuracy_mean /= 5
+							log_loss_mean /= 5
+							print("kernel =",kernel,", gamma =",gamma,", degree =",degree,", coef0 =",coef0,", C =",C,", Validation Accuracy = ",accuracy_mean, ", Validation log_loss = ",log_loss_mean)
 							if accuracy_mean > best_accuracy:
 								best_accuracy = accuracy_mean
 								best_C = C
@@ -115,6 +118,12 @@ class SVM(Classifier):
 
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
+dm.center_normalize_data()
 s = SVM()
-s.cross_validation(dm.x_train, dm.y_train_strings)
+#s.cross_validation(dm.x_train, dm.y_train_strings)
+s.train(dm.x_train,dm.y_train_strings)
 print("Accuracy training :", s.accuracy(s.test(dm.x_train), dm.y_train_strings))
+print("Log loss training :", s.log_loss(s.test(dm.x_train), dm.y_train_strings))
+
+print("Testing model...")
+dm.write_CSV("test_results.csv", s.test(dm.x_test))
