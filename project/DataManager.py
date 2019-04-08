@@ -12,6 +12,28 @@ class DataManager():
 		self.y_train_strings = np.array([])
 		#Lists of leaf features examples without labels for testing
 		self.x_test = np.array([])
+		#Ids of all test examples, in the same order as x_test, used to test on Kaggle
+		self.ids_test = np.array([])
+		#List of unique string labels as given by the CSV file, used to test on Kaggle
+		self.string_labels = np.array([])
+
+	"""
+	Convert a string label to a one hot vector
+	"""
+	def string_to_onehot(self, s):
+		if isinstance(s, str):
+			result = np.zeros((self.string_labels.shape[0]))
+			if s in self.string_labels:
+				result[np.where(self.string_labels==s)] = 1
+			return result
+		else:
+			results = []
+			for i in range(s.shape[0]):
+				result = np.zeros((self.string_labels.shape[0]))
+				if s[i] in self.string_labels:
+					result[np.where(self.string_labels==s[i])] = 1
+				results.append(result)
+			return np.array(results)
 
 	"""
 	Reads the csv files located at path_train and path_test, and stores them in the class variables defined above
@@ -36,6 +58,7 @@ class DataManager():
 			self.y_train_strings = np.array(labels_string)
 			#Establish a link between leaf names and unique assigned ids
 			unique_labels = np.unique(labels_string)
+			self.string_labels = unique_labels
 			#Leaf labels (but this time converted to one-hot vectors) corresponding to the features
 			self.y_train = np.zeros((len(features), unique_labels.shape[0]))
 			for l in range(len(labels_string)):
@@ -51,7 +74,40 @@ class DataManager():
 
 			#list of the 192 features
 			features = []
+			#List of ids
+			ids = []
 			for row in csv_file_test_reader:
+				ids.append(int(row[0]))
 				features.append([float(feature) for feature in row[1:]])
 			self.x_test = np.array(features)
+			self.ids_test = np.array(ids)
 		print("-> " + str(self.x_test.shape[0]) + " testing examples loaded")
+
+	"""
+	Center and normalize the columns of x_train and x_test
+	"""
+	def center_normalize_data(self):
+		#Train data
+		mean = np.mean(self.x_train, axis=0)
+		std = np.std(self.x_train, axis=0)
+		self.x_train = (self.x_train - mean)/std
+		#Test data
+		mean = np.mean(self.x_test, axis=0)
+		std = np.std(self.x_test, axis=0)
+		self.x_test = (self.x_test - mean)/std
+
+	"""
+	Write test prediction in a CSV file
+	"""
+	def write_CSV(self, path, pred_test):
+		print("Writing CSV")
+		with open(path, mode="w") as csv_file:
+			writer = csv.writer(csv_file, delimiter=',')
+			#Write header
+			header = np.concatenate((np.array(["id"]),self.string_labels))
+			writer.writerow(header)
+			for i in range(self.x_test.shape[0]):
+				if isinstance(pred_test[i], str):
+					writer.writerow([self.ids_test[i]]+list(self.string_to_onehot(pred_test[i])))
+				else:
+					writer.writerow([self.ids_test[i]]+list(pred_test[i]))
