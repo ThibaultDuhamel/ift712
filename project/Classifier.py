@@ -1,4 +1,5 @@
 import numpy as np
+import sklearn as sk
 
 #Super class for each classifier method
 class Classifier:
@@ -49,3 +50,16 @@ class Classifier:
 					accuracy+=1
 
 		return 100*accuracy/predicted_labels.shape[0]
+
+	def log_loss(self, predicted_labels, true_labels):
+		log_loss = 0.0
+
+		#First version is for string labels
+		if isinstance(predicted_labels[0], str):
+			for predicted,true in zip(predicted_labels,true_labels):
+				if predicted!=true:
+					log_loss-=np.log(10e-15)
+			return log_loss/predicted_labels.shape[0]
+		#Second version if for one-hot labels
+		else:
+			return sk.metrics.log_loss(true_labels, predicted_labels)
