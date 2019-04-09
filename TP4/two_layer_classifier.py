@@ -114,12 +114,13 @@ class TwoLayerClassifier(object):
 			#To avoid overflow
 			softmax = np.exp(output - np.max(output))
 			softmax = softmax/np.sum(softmax)
-			threshold = np.vectorize(lambda t : max(t,0.001))
+			#To avoid ln(0)
+			threshold = np.vectorize(lambda t : max(t,0.0001))
 			softmax = threshold(softmax)
 			loss -= np.log(softmax[y[i]])
 			loss += self.net.l2_reg*(np.linalg.norm(self.net.layer1.W)+np.linalg.norm(self.net.layer2.W))/2
 			#Accuracy
-			if np.argmax(output, axis=0) == y[i]:
+			if np.argmax(softmax, axis=0) == y[i]:
 				accu += 1
 
 		accu/=N
@@ -205,6 +206,7 @@ class TwoLayerNet(object):
 		#To avoid exponential overflow
 		softmax = np.exp(scores - np.max(scores))
 		softmax = softmax/np.sum(softmax)
+		#To avoid ln(0)
 		threshold = np.vectorize(lambda t : max(t,0.001))
 		softmax = threshold(softmax)
 		#2 / 3
