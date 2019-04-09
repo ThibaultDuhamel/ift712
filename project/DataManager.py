@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import pandas as pd
 
 class DataManager():
 
@@ -34,10 +35,17 @@ class DataManager():
 			#Establish a link between leaf names and unique assigned ids
 			unique_labels = np.unique(labels_string)
 			#Leaf labels (but this time converted to one-hot vectors) corresponding to the features
+			y_value = list(range(0,len(unique_labels)))
+			y_dict = dict(zip(unique_labels, y_value))
+			temp = pd.Series(labels_string)
+			self.y_train = temp.map(y_dict)
+			'''
 			self.y_train = np.zeros((len(features),
 			unique_labels.shape[0]))
 			for l in range(len(labels_string)):
 				self.y_train[l][np.where(unique_labels==labels_string[l])[0]] = 1
+			'''
+			
 		print("-> " + str(self.x_train.shape[0]) + " training examples loaded")
 
 		print("Loading testing data...")
