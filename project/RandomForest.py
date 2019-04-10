@@ -88,7 +88,7 @@ class RandomForest(Classifier):
         self.cri_par = best_cri_par
         print("Best values : estimators =", self.estimators,
               ", criterion =", self.cri_par,
-              ", Validation Accuracy =", self.cri_par)
+              ", Validation Accuracy =", accuracy_mean)
         self.train(x_train, y_train)
 
 if __name__ == "__main__":
