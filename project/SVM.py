@@ -118,6 +118,7 @@ class SVM(Classifier):
 
 dm = DataManager()
 dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
+dm.extract_features_images("leaf-classification/images/")
 dm.center_normalize_data()
 s = SVM()
 #s.cross_validation(dm.x_train, dm.y_train_strings)
