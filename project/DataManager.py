@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import cv2
+import pandas as pd
 
 class DataManager():
 
@@ -11,6 +12,8 @@ class DataManager():
 		self.y_train = np.array([])
 		#List of string labels, for every examples, in the same order as y_train
 		self.y_train_strings = np.array([])
+		#List of integer labels, for every examples, in the same order as y_train
+		self.y_train_integer = np.array([])
 		#Lists of leaf features examples without labels for testing
 		self.x_test = np.array([])
 		#Ids of all train examples, in the same order as x_train
@@ -71,6 +74,14 @@ class DataManager():
 			self.y_train = np.zeros((len(features), unique_labels.shape[0]))
 			for l in range(len(labels_string)):
 				self.y_train[l][np.where(unique_labels==labels_string[l])[0]] = 1
+	
+			# Leaf labels - Integer Encoding (but this time converted to
+            # integer vector) corresponding to the features
+            y_value = list(range(0, len(unique_labels)))
+            y_dict = dict(zip(unique_labels, y_value))
+            temp = pd.Series(labels_string)
+            self.y_train_integer = temp.map(y_dict)
+				
 		print("-> " + str(self.x_train.shape[0]) + " training examples loaded")
 
 		print("Loading testing data...")
