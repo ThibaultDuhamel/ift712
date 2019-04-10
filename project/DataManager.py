@@ -62,6 +62,7 @@ class DataManager():
 				features.append([float(feature) for feature in row[2:]])
 			self.x_train = np.array(features)
 			self.ids_train = np.array(ids)
+
 			self.y_train_strings = np.array(labels_string)
 			#Establish a link between leaf names and unique assigned ids
 			unique_labels = np.unique(labels_string)
