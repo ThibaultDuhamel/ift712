@@ -28,14 +28,41 @@ class Classifier:
 	def cross_validation(self, x_train, y_train):
 		pass
 
-	"""
-	Compute the percentage of correct predictions over the total number of predictions (100*correct/total).
-	The two inputs must be arrays of probabilities
-	Return : the percentage of correct predictions, a float from 0 to 100
-	"""
 	def accuracy(self, predicted_labels, true_labels):
+		"""
+		Compute the percentage of correct predictions over
+		the total number of predictions (100*correct/total).
+		The two inputs must be arrays of probabilities
+		Return : the percentage of correct predictions, a float from 0 to 100
+		"""
 		accuracy = 0.0
-		for predicted,true in zip(predicted_labels,true_labels):
-			if np.argmax(predicted) == np.argmax(true):
-				accuracy+=1
-		return 100*accuracy/predicted_labels.shape[0]
+		# First version is for string or int labels
+		if len(true_labels.shape) == 1:
+			for predicted, true in zip(predicted_labels, true_labels):
+				if predicted == true:
+					accuracy += 1
+
+		# Second version if for one-hot labels
+		else:
+			for predicted, true in zip(predicted_labels, true_labels):
+				if np.argmax(predicted) == np.argmax(true):
+					accuracy += 1
+
+		return 100 * accuracy / predicted_labels.shape[0]
+
+	def log_loss(self, predicted_labels, true_labels):
+		"""
+		Compute the cross-entropy loss function of the prediction
+		"""
+		log_loss = 0.0
+
+		# First version is for string or int labels
+		if len(true_labels.shape) == 1:
+			for predicted, true in zip(predicted_labels, true_labels):
+				if predicted != true:
+					# To follow the definition of Kaggle logloss
+					log_loss -= np.log(10e-15)
+			return log_loss / predicted_labels.shape[0]
+		# Second version if for one-hot labels
+		else:
+			return sk.log_loss(true_labels, predicted_labels)
