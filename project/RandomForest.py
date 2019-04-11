@@ -9,7 +9,7 @@ class RandomForest(Classifier):
     Using RandomForestClassifier to train Random Forest model
     """
     def __init__(self):
-        self.estimators = 10
+        self.estimators = 70
         self.cri_par = 'gini'
 
     def train(self, x_train, y_train):
@@ -67,7 +67,7 @@ class RandomForest(Classifier):
                     # Compute accuracy and compare
                     # with the best value found
                     accuracy = self.accuracy(results, y_val_fold)
-                    log_loss = self.log_loss(y_predict, y_val_fold)
+                    log_loss = self.log_loss(results, y_val_fold)
                     # Compute accuracy and compare with the best value found
                     accuracy_mean += accuracy
                     logloss_mean += log_loss
@@ -88,11 +88,3 @@ class RandomForest(Classifier):
               ", criterion =", self.cri_par,
               ", Validation Accuracy =", best_accuracy)
         self.train(x_train, y_train)
-
-rf = RandomForest()
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv",
-            "leaf-classification/test.csv")
-x = dm.x_train
-y = dm.y_train_integer
-rf.cross_validation(x, y)

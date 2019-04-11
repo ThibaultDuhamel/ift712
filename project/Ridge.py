@@ -28,7 +28,10 @@ class Ridge(Classifier):
         Test the model with the x_test features array
         Return : an array of predicted labels
         """
-        return self.model.predict(x_test)
+        results = self.model.predict(x_test)
+        softmax = np.exp(results)
+        softmax = softmax / np.sum(softmax, axis=1, keepdims=True)
+        return softmax
 
     def cross_validation(self, x_train, y_train):
         """
@@ -79,13 +82,3 @@ class Ridge(Classifier):
         self.alpha = best_alpha
         print("Best values : alpha =", self.alpha)
         self.train(x_train, y_train)
-
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv",
-            "leaf-classification/test.csv")
-r = Ridge()
-x = dm.x_train
-y = dm.y_train
-r.cross_validation(x, y)
-print("Accuracy training :", r.accuracy(r.test(x), y))

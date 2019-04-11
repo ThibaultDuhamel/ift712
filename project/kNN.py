@@ -98,11 +98,3 @@ class kNN(Classifier):
         # Select the best value found
         self.k = best_k
         self.train(x_train, y_train)
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
-knn = kNN()
-perm = np.random.permutation(dm.x_train.shape[0])
-knn.cross_validation(dm.x_train[perm], dm.y_train_strings[perm])
-print("")
-print("Best k =", knn.k)

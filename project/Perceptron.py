@@ -39,7 +39,10 @@ class Perceptron(Classifier):
         Return : an array of predicted labels,
         as one-hot vectors for each class
         """
-        return self.model.predict_proba(x_test)
+        results = self.model.predict(x_test)
+        softmax = np.exp(results)
+        softmax = softmax / np.sum(softmax, axis=1, keepdims=True)
+        return softmax
 
     def cross_validation(self, x_train, y_train):
         """
@@ -101,17 +104,3 @@ class Perceptron(Classifier):
         print("Best values : layer_factor =", self.layer_factor,
               ", alpha =", self.alpha, ", learning_rate=", self.learning_rate)
         self.train(x_train, y_train)
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv",
-            "leaf-classification/test.csv")
-s = Perceptron()
-perm = np.random.permutation(dm.x_train.shape[0])
-x = dm.x_train[perm]
-y = dm.y_train[perm]
-x_train_split = x[:int(0.8*x.shape[0])]
-y_train_split = y[:int(0.8*x.shape[0])]
-x_val_split = x[int(0.8*x.shape[0]):]
-y_val_split = y[int(0.8*y.shape[0]):]
-s.cross_validation(x_train_split, y_train_split)
-print("Accuracy training :", s.accuracy(s.test(x_val_split), y_val_split))

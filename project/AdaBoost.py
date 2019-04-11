@@ -10,8 +10,8 @@ class AdaBoost(Classifier):
 
     def __init__(self):
         """Initialisation of the required parameters"""
-        self.estimator = 5000
-        self.l_rate = 1
+        self.estimator = 25
+        self.l_rate = 0.01
         self.clf = DecisionTreeClassifier(criterion='gini',
                                           min_samples_split=2,
                                           max_depth=11,
@@ -86,12 +86,3 @@ class AdaBoost(Classifier):
               ", learning_rate =", l_rate,
               ", Validation Accuracy = ", best_accuracy)
         self.train(x_train, y_train)
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv",
-            "leaf-classification/test.csv")
-ada = AdaBoost()
-x = dm.x_train
-# Leaf labels - Integer Encoding
-y = dm.y_train_integer
-ada.cross_validation(x, y)

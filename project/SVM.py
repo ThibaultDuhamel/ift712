@@ -137,18 +137,3 @@ class SVM(Classifier):
               self.gamma, ", degree =", self.degree, ", coef0 =",
               self.coef0, ", C =", self.C)
         self.train(x_train, y_train)
-
-dm = DataManager()
-dm.load_CSV("leaf-classification/train.csv", "leaf-classification/test.csv")
-dm.extract_features_images("leaf-classification/images/")
-dm.center_normalize_data()
-s = SVM()
-# s.cross_validation(dm.x_train, dm.y_train_strings)
-s.train(dm.x_train, dm.y_train_strings)
-print("Accuracy training :", s.accuracy(s.test(dm.x_train),
-                                        dm.y_train_strings))
-print("Log loss training :", s.log_loss(s.test(dm.x_train),
-                                        dm.y_train_strings))
-
-print("Testing model...")
-dm.write_CSV("test_results.csv", s.test(dm.x_test))

@@ -122,11 +122,18 @@ class DataManager():
             header = np.concatenate((np.array(["id"]), self.string_labels))
             writer.writerow(header)
             for i in range(self.x_test.shape[0]):
+                # String labels
                 if isinstance(pred_test[i], str):
                     strings_to_onehot = self.string_to_onehot(pred_test[i])
-                    writer.writerow([self.ids_test[i]]+strings_to_onehot)
-                else:
+                    writer.writerow([self.ids_test[i]]+list(strings_to_onehot))
+                # One-hot vectors
+                elif len(pred_test.shape) != 1:
                     writer.writerow([self.ids_test[i]]+list(pred_test[i]))
+                # Integer labels
+                else:
+                    one_hot = np.zeros(self.string_labels.shape[0])
+                    one_hot[pred_test[i]] = 1
+                    writer.writerow([self.ids_test[i]]+list(one_hot))
 
     """
     Center and normalize the columns of x_train and x_test
