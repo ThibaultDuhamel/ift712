@@ -1,17 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr  6 12:45:40 2019
-
-@author: shih3801
-"""
-
 import numpy as np
 from Classifier import *
 from DataManager import *
 from sklearn.ensemble import RandomForestClassifier
 
-# Super class for each classifier method
+
 class RandomForest(Classifier):
     """
     Using RandomForestClassifier to train Random Forest model
@@ -58,21 +50,27 @@ class RandomForest(Classifier):
                 accuracy_mean = 0.0
                 logloss_mean = 0.0
                 for K in range(max_k):
-                    x_validation_fold = x_train[
-                         int(K*splits_length): int((K+1)*splits_length)]
-                    x_train_fold = np.concatenate(
-                        (x_train[:int(K*splits_length)],
-                         x_train[int((K+1)*splits_length):]), axis=0)
-                    y_validation_fold = y_train[
-                        int(K*splits_length): int((K+1)*splits_length)]
-                    y_train_fold = np.concatenate(
-                        (y_train[:int(K*splits_length)],
-                         y_train[int((K+1)*splits_length):]), axis=0)
+                    # Split the data into 10 folds
+                    # and use the #K for validation
+                    inf = int(K*splits_length)
+                    sup = int((K+1)*splits_length)
+                    x_val_fold = x_train[inf:sup]
+                    x_train_fold = np.concatenate((x_train[:inf],
+                                                   x_train[sup:]))
+                    y_val_fold = y_train[inf:sup]
+                    y_train_fold = np.concatenate((y_train[:inf],
+                                                   y_train[sup:]))
+                    # Test the model with the value of k
+                    # and output a distribution
                     self.train(x_train_fold, y_train_fold)
-                    y_predict = self.test(x_validation_fold)
-                    accuracy_mean += self.accuracy(y_predict,
-                                                   y_validation_fold)
-                    logloss_mean += self.log_loss(y_predict, y_validation_fold)
+                    results = self.test(x_val_fold)
+                    # Compute accuracy and compare
+                    # with the best value found
+                    accuracy = self.accuracy(results, y_val_fold)
+                    log_loss = self.log_loss(y_predict, y_val_fold)
+                    # Compute accuracy and compare with the best value found
+                    accuracy_mean += accuracy
+                    logloss_mean += log_loss
                 accuracy_mean /= 10
                 logloss_mean /= 10
                 print("estimator =", estimator, ", criterion =", criterion,
@@ -91,10 +89,10 @@ class RandomForest(Classifier):
               ", Validation Accuracy =", best_accuracy)
         self.train(x_train, y_train)
 
-if __name__ == "__main__":
-    rf = RandomForest()
-    dm = DataManager()
-    dm.load_CSV("leaf-classification/train.csv","leaf-classification/test.csv") 
-    x = dm.x_train
-    y = dm.y_train_integer
-    rf.cross_validation(x, y)
+rf = RandomForest()
+dm = DataManager()
+dm.load_CSV("leaf-classification/train.csv",
+            "leaf-classification/test.csv")
+x = dm.x_train
+y = dm.y_train_integer
+rf.cross_validation(x, y)

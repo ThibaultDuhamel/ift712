@@ -1,10 +1,11 @@
 import numpy as np
 import sklearn.metrics as skmetrics
 
+
 # Super class for each classifier method
 class Classifier:
 
-	# Initialisation of the required parameters
+    # Initialisation of the required parameters
     def __init__(self):
         pass
 
@@ -31,27 +32,27 @@ class Classifier:
         """
         pass
 
-	def accuracy(self, predicted_labels, true_labels):
-		"""
-		Compute the percentage of correct predictions over
-		the total number of predictions (100*correct/total).
-		The two inputs must be arrays of probabilities
-		Return : the percentage of correct predictions, a float from 0 to 100
-		"""
-		accuracy = 0.0
-		# First version is for string or int labels
-		if len(true_labels.shape) == 1:
-			for predicted, true in zip(predicted_labels, true_labels):
-				if predicted == true:
-					accuracy += 1
+    def accuracy(self, predicted_labels, true_labels):
+        """
+        Compute the percentage of correct predictions over
+        the total number of predictions (100*correct/total).
+        The two inputs must be arrays of probabilities
+        Return : the percentage of correct predictions, a float from 0 to 100
+        """
+        accuracy = 0.0
+        # First version is for string or int labels
+        if len(true_labels.shape) == 1:
+            for predicted, true in zip(predicted_labels, true_labels):
+                if predicted == true:
+                    accuracy += 1
 
-		# Second version if for one-hot labels
-		else:
-			for predicted, true in zip(predicted_labels, true_labels):
-				if np.argmax(predicted) == np.argmax(true):
-					accuracy += 1
+        # Second version if for one-hot labels
+        else:
+            for predicted, true in zip(predicted_labels, true_labels):
+                if np.argmax(predicted) == np.argmax(true):
+                    accuracy += 1
 
-		return 100 * accuracy / predicted_labels.shape[0]
+        return 100 * accuracy / predicted_labels.shape[0]
 
     def log_loss(self, predicted_labels, true_labels):
         """
