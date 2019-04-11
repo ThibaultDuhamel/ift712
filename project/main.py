@@ -24,6 +24,7 @@ w can be 1 to write a submission file or 0 otherwise
 if len(sys.argv) != 6:
     print("Wrong arguments")
     print("Usage : main.py [method] [cv] [cn] [f] [w]")
+    print("method can be AdaBoost, RandomForest, SVM, kNN, Perceptron, Ridge")
     print("cv can be 1 for cross-validation or 0 otherwise")
     print("cn can be 1 to use centered/normalize data, or 0 otherwise")
     print("f can be 1 to use images features, or 0 otherwise")
