@@ -11,9 +11,9 @@
 
 ## Intructions
 You may run the main.py file with the following command and arguments:
-'''bash
+```bash
 python3.5 main.py [method] [cv] [cn] [f] [dp] [w]
-'''
+```
 - method is the classifier to use. It can be AdaBoost, RandomForest, SVM, kNN, Perceptron, Ridge
 - cv must be either 1 to use cross-validation or 0 otherwise
 - cn must be either 1 to center/normalize data or 0 otherwise
